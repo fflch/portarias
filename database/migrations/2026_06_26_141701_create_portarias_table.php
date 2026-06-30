@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void16
+    public function up(): void
     {
         Schema::create("portarias", function(Blueprint $table) {
-            $table->int('number');
+            $table->integer('number');
             $table->date('date');
             $table->enum('type', ['cpp', 'comissao', 'designacao', 'administrativa']);
             $table->string('status');
