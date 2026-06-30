@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('portaria_status_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('portaria_id');
+            $table->foreignId('user_id');
+            $table->enum('from_status', []);
+            $tablee->enum('to_statuss', [])->nullable();
+            $table->string('comment')->nullable();
             $table->timestamps();
         });
     }
