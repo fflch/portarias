@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('portaria_id');
             $table->string('path');
-            $table->enum('disk', ['local', 's3']);
+            $table->string('disk');
             $table->string('origin_name');
             $table->string('mime_type');
             $table->integer('version');
-            $table->boolean('is_current');
+            $table->boolean('is_current')->default(true);
             $table->foreignId('uploaded_by');
             $table->timestamps();
         });

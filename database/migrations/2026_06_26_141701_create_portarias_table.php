@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create("portarias", function(Blueprint $table) {
             $table->integer('number');
             $table->date('date');
-            $table->enum('type', ['cpp', 'comissao', 'designacao', 'administrativa']);
-            $table->string('status');
-            $table->boolean('is_legacy');
+            $table->string('type');
+            $table->string('status')->default("rascunho");
+            $table->boolean('is_legacy')->default(false);
             $table->foreignId('revokes_id')->nullable();
+            $table->foreignId('reviewer_id');
             $table->foreignId('created_by');
-            $table->foreignId('approved_by');
+            $table->foreignId('approved_by')->nullable();
             $table->timestamp('published_at')->nullable();
         });
     }
