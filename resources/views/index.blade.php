@@ -6,10 +6,6 @@
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Portarias</h5>
-
-            <a href="{{ route('portarias.create') }}" class="btn btn-primary btn-sm">
-                Nova Portaria
-            </a>
         </div>
         <div class="card-body p-0">
             {{-- BLOCO COM SCROLL --}}

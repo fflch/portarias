@@ -7,16 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class Portaria extends Model
 {
     protected $fillable = [
-        //campo número é criado sequencialmente. 0 a n para cada ano e reseta na virada. (Criar teste de número se é criado sequencialmente)
-        'number',
-        'date',
         'type',
+        'title',
+        'number',
+        'year',
+        'published_at',
+        'pdf_path',
+        'file_name',
+        'file_hash',
         'status',
-        'is_legacy',
+        'rejection_reason',
         'revoke_id',
         'created_by',
         'approved_by',
-        'published_at'
+        'approved_at'
     ];
 
     public function getStatus(){
