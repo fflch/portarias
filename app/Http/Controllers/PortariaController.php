@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Portaria;
 use App\Enums\PortariaStatus;
+use Fflch\LaravelFflchStepper\Stepper;
 
 class PortariaController extends Controller
 {
@@ -40,7 +41,7 @@ class PortariaController extends Controller
 
     public function show(Portaria $portaria, Stepper $stepper){
         $stepper->setCurrentStepName($portaria->status);
-        return view('portaria.show',[
+        return view('portarias.show',[
             'portaria' => $portaria,
             'stepper' => $stepper->render()
         ]);
