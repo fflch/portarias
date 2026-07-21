@@ -1,9 +1,5 @@
-@extends('laravel-usp-theme::master')
+@extends('layouts.app')
 
 @section('content')
     {{!! $stepper !!}}
-
-    <div class="container">
-        
-    </div>
-@endsection('content')
+@endsection

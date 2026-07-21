@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PortariaStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Portaria extends Model
@@ -25,6 +27,22 @@ class Portaria extends Model
         'approved_by',
         'approved_at'
     ];
+
+    protected function casts(): array {
+        return [
+            'status' => PortariaStatus::class,
+            'approved_at' => 'datetime',
+            'published_at' => 'date',
+        ];
+    }
+
+    public function creator(): BelongsTo {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function approver(): BelongsTo {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 
     public function getStatus(){
         $status = [

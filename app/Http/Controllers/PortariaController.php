@@ -9,6 +9,17 @@ use Fflch\LaravelFflchStepper\Stepper;
 
 class PortariaController extends Controller
 {
+    public function index(Request $request){
+        $portarias = Portaria::with('creator')
+            ->when($request->filter === 'minhas', function ($query) {
+                $query->where('created_by', auth()->id());
+            })
+            ->latest()
+            ->get();
+
+        return view('portarias.index', compact('portarias'));
+    }
+
     public function create() {
         return view('portarias.create');
     }
