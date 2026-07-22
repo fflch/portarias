@@ -26,5 +26,12 @@ enum PortariaStatus: string {
         };
     }
 
+    public function isEditable(): bool {
+        return $this === self::PENDING_APPROVAL;
+    }
+
+    public function isDeletable(): bool {
+        return $this === self::PENDING_APPROVAL;
+    }
 }
 

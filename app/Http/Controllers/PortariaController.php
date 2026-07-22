@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Portaria;
 use App\Enums\PortariaStatus;
+use App\Enums\PortariaType;
 use Fflch\LaravelFflchStepper\Stepper;
+use Illuminate\Validation\Rules\Enum;
 
 class PortariaController extends Controller
 {
@@ -26,13 +28,13 @@ class PortariaController extends Controller
 
     public function store(Request $request) {
         $validated = $request->validate([
-            'type' => 'required|string',
+            'type' => ['required', new Enum(PortariaType::class)],
             'title' => 'required|string|max:500',
-            'pdf_file' => 'required|file|mimes:pdf|max:10240',
+            'file' => 'required|file|mimes:docx|max:10240',
         ]);
 
-        $file = $request->file('pdf_file');
-        $pdfPath = $file->store('portarias/' . now->year(), 'public');
+        $file = $request->file('file');
+        $filePath = $file->store('portarias/' . now()->year, 'public');
         $fileHash = hash_file('sha256', $file->getRealPath());
 
         Portaria::create([
@@ -40,14 +42,15 @@ class PortariaController extends Controller
             'title' => $validated['title'],
             'number' => $request->number ?? null,
             'year' => now()->year,
-            'pdf_path' => $pdfPath,
+            'file_path' => $filePath,
             'file_name' => $file->getClientOriginalName(),
             'file_hash' => $fileHash,
-            'status' => PortariaStatus::PENDING_APPROVAL->value(),
+            'status' => PortariaStatus::PENDING_APPROVAL,
             'created_by' => auth()->id(),
         ]);
 
-        return redirect('/');
+        return redirect()->route('portarias.show', $portaria)
+            ->with('alert-success', 'Portaria cadastrada com sucesso!');
     }
 
     public function show(Portaria $portaria, Stepper $stepper){
@@ -59,20 +62,67 @@ class PortariaController extends Controller
     }
 
     public function edit(Portaria $portaria) {
-        return view('portarias.edit', ['portaria' => $portaria]);
+        if (!$portaria->status->isEditable()) {
+            return redirect()->route('portarias.show', $portaria)
+                ->with('alert-danger', 'Portarias com status "' . $portaria->status->label() . '" não podem ser editadas.');
+        }
+
+        return view('portarias.edit', compact('portaria'));
     }
 
     public function update(Request $request, Portaria $portaria) {
-        Portaria::findOrFail($portaria->id)->update([
-            'title' => $request->title,
-            'introduction' => $request->introduction,
-            'content' => $request->introduction,
+        if (!$portaria->status->isEditable()) {
+            return redirect()->route('portarias.show', $portaria)
+                ->with('alert-danger', "Está portaria não pode mais ser alterada.");
+        }
+
+        $validated = $request->validate([
+            'type'   => ['required', new Enum(PortariaType::class)],
+            'title'  => 'required|string|max:500',
+            'number' => 'nullable|integer|min:1',
+            'year'   => 'nullable|integer|digits:4',
+            'status' => ['required', new Enum(PortariaStatus::class)],
+            'file'   => 'nullable|file|mimes:docx|max:10240',
         ]);
-        return redirect('/portaria/{$portaria->id}');
+
+        if ($request->hasFile('file')) {
+            if ($portaria->file_path && Storage::disk('public')->exists($portaria->file_path)) {
+                Storage::disk('public')->delete($portaria->file_path);
+            }
+
+            $file = $request->file('file');
+            $targetYear = $validated['year'] ?? $portaria->year ?? now()->year;
+
+            $portaria->file_path = $file->store('portarias/' . $targetYear, 'public');
+            $portaria->file_name = $fule->getClientOriginalName();
+            $portaria->file_hash = hash_file('sha256', $file->getRealPath());
+        }
+
+        $portaria->update([
+            'type'   => $validated['type'],
+            'title'  => $validated['title'],
+            'number' => $validated['number'] ?? null,
+            'year'   => $validated['year'] ?? $portaria->year,
+            'status' => $validated['status'],
+        ]);
+
+        return redirect()->route('portarias.show', $portaria)
+            ->with('alert-success', "Portaria atualizada com sucesso!");
     }
 
     public function destroy(Portaria $portaria) {
-        $portaria::delete();
-        return redirect('/');
+        if (!$portaria->status->isDeletable()) {
+            return redirect()->route('portarias.show', $portaria)
+                ->with('alert-danger', 'Apenas portarias em análise podem ser excluídas.');
+        }
+
+        if ($portaria->file_path && Storage::disk('public')->exists($portaria->file_path)) {
+            Storage::disk('public')->delete($portaria->file_path);
+        }
+
+        $portaria->delete();
+
+        return redirect()->route('portarias.index')
+            ->with('alert-success', "Portaria excluída permanentemente.");
     }
 }

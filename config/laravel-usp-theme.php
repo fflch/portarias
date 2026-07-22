@@ -3,7 +3,7 @@
 $portarias = [
     [
         'text' => 'Criar',
-        'url' => 'create',
+        'url' => 'portarias/create',
     ],
 ];
 
