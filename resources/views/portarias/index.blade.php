@@ -89,9 +89,11 @@
                                         <a href="{{ route('portarias.show', $portaria) }}" class="btn btn-outline-primary-fflch btn-sm px-3 font-weight-bold" title="Visualizar detalhes">
                                             <i class="fas fa-eye mr-1"></i> Ver
                                         </a>
-                                        <a href="{{ route('portarias.edit', $portaria) }}" class="btn btn-outline-secondary btn-sm px-3" title="Editar">
-                                            <i class="fas fa-edit mr-1"></i> Editar
-                                        </a>
+                                        @can('update', $portaria)
+                                            <a href="{{ route('portarias.edit', $portaria) }}" class="btn btn-outline-secondary btn-sm px-3" title="Editar">
+                                                <i class="fas fa-edit mr-1"></i> Editar
+                                            </a>
+                                        @endcan
                                     </div>
 
                                 </div>

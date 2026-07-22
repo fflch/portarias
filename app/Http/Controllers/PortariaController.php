@@ -51,7 +51,7 @@ class PortariaController extends Controller
     }
 
     public function show(Portaria $portaria, Stepper $stepper){
-        $stepper->setCurrentStepName($portaria->status);
+        $stepper->setCurrentStepName($portaria->status?->label());
         return view('portarias.show',[
             'portaria' => $portaria,
             'stepper' => $stepper->render()

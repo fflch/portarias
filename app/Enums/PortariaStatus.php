@@ -20,7 +20,7 @@ enum PortariaStatus: string {
     public function color(): string {
         return match($this) {
             self::PENDING_APPROVAL => "warning",
-            self::PUBLISHED => "sucess",
+            self::PUBLISHED => "success",
             self::REJECTED => "danger",
             self::REVOKED => "dark",
         };

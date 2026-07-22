@@ -2,17 +2,21 @@
 
 return [ 
     'steps' => [
-        'Em elaboração' => [
+        'Em Análise' => [
             'icon'     => '<i class="far fa-plus-square"></i>',
             'description' => ''
         ],
-        'Análise' => [
+        'Publicado' => [
             'icon'     => '<i class="fas fa-glasses"></i>',
             'description' => ''
         ],
-        'Finalizado' => [
+        'Rejeitado' => [
             'icon'     => '<i class="fas fa-clipboard-check"></i>',
-            'description' => 'oooo'
+            'description' => ''
+        ],
+        'Revogado' => [
+            'icon'     => '<i class="fas fa-clipboard-check"></i>',
+            'description' => ''
         ],
     ]
 ];
