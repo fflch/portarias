@@ -8,6 +8,8 @@ use App\Enums\PortariaStatus;
 use App\Enums\PortariaType;
 use Fflch\LaravelFflchStepper\Stepper;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class PortariaController extends Controller
 {
@@ -31,26 +33,56 @@ class PortariaController extends Controller
             'type' => ['required', new Enum(PortariaType::class)],
             'title' => 'required|string|max:500',
             'file' => 'required|file|mimes:docx|max:10240',
+            'numbering_type' => 'required|in:auto,manual',
+            'number' => [
+                'exclude_if:numbering_type,auto',
+                'required_if:numbering_type,manual',
+                'integer',
+                'min:1',
+                
+                Rule::unique('portarias')->where(fn ($query) => $query->where('year', $request->year))
+            ],
+            'year' => [
+                'exclude_if:numbering_type,auto',
+                'required_if:numbering_type,manual',
+                'integer',
+                'min:1900',
+                'max:' . (now()->year + 1)
+            ]
         ]);
 
+        $year = $request->numbering_type === 'manual' ? $validated['year'] : now()->year;
         $file = $request->file('file');
         $filePath = $file->store('portarias/' . now()->year, 'public');
         $fileHash = hash_file('sha256', $file->getRealPath());
 
-        $portaria = Portaria::create([
-            'type' => $validated['type'],
-            'title' => $validated['title'],
-            'number' => $request->number ?? null,
-            'year' => now()->year,
-            'file_path' => $filePath,
-            'file_name' => $file->getClientOriginalName(),
-            'file_hash' => $fileHash,
-            'status' => PortariaStatus::PENDING_APPROVAL,
-            'created_by' => auth()->id(),
-        ]);
+        $portaria = DB::transaction(function () use ($validated, $request, $year, $file, $filePath, $fileHash) {
+            if ($request->numbering_type === 'auto') {
+                $lastNum = Portaria::where('year', $year)
+                    ->lockForUpdate()
+                    ->max('number');
+                $number = $lastNum ? $lastNum + 1 : 1;
+            }else {
+                $number = $validated['number'];
+            }
+
+            return Portaria::create([
+                'type' => $validated['type'],
+                'title' => $validated['title'],
+                'number' => $number,
+                'year' => $year,
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_hash' => $fileHash,
+                'status' => PortariaStatus::PENDING_APPROVAL,
+                'created_by' => auth()->id(),
+            ]);
+    
+        });
 
         return redirect()->route('portarias.show', $portaria)
             ->with('alert-success', 'Portaria cadastrada com sucesso!');
+        
     }
 
     public function show(Portaria $portaria, Stepper $stepper){

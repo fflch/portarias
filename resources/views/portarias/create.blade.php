@@ -54,6 +54,54 @@
                         @enderror
                     </div>
 
+                    {{-- Origem da Numeração (Toggle) --}}
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label font-weight-bold text-secondary d-block">
+                            Origem da Numeração <span class="text-danger">*</span>
+                        </label>
+                        
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="num_auto" name="numbering_type" value="auto" class="form-check-input" 
+                                   {{ old('numbering_type', 'auto') === 'auto' ? 'checked' : '' }} onchange="toggleNumberField()">
+                            <label class="form-check-label" for="num_auto">Gerar Automaticamente (Nova Portaria)</label>
+                        </div>
+                        
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="num_manual" name="numbering_type" value="manual" class="form-check-input" 
+                                   {{ old('numbering_type') === 'manual' ? 'checked' : '' }} onchange="toggleNumberField()">
+                            <label class="form-check-label" for="num_manual">Inserir Manualmente (Retroativa / Física)</label>
+                        </div>
+                    </div>
+
+                    {{-- Campos de Número e Ano (Escondidos por padrão) --}}
+                    <div class="col-md-12" id="box-numeracao-manual" style="display: {{ old('numbering_type') === 'manual' ? 'block' : 'none' }};">
+                        <div class="p-3 mb-3 bg-light border rounded">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="number" class="form-label font-weight-bold text-secondary">
+                                        Número da Portaria <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" name="number" id="number" class="form-control @error('number') is-invalid @enderror" 
+                                           value="{{ old('number') }}" placeholder="Ex: 12">
+                                    @error('number')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="year" class="form-label font-weight-bold text-secondary">
+                                        Ano <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" name="year" id="year" class="form-control @error('year') is-invalid @enderror" 
+                                           value="{{ old('year', date('Y')) }}" placeholder="Ex: {{ date('Y') }}">
+                                    @error('year')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Título / Ementa --}}
                     <div class="col-md-12 mb-3">
                         <label for="title" class="form-label font-weight-bold text-secondary">
@@ -113,4 +161,24 @@
         </div>
     </div>
 </div>
+<script>
+    function toggleNumberField() {
+        const manualBox = document.getElementById('box-numeracao-manual');
+        const isManual = document.getElementById('num_manual').checked;
+        
+        if (isManual) {
+            manualBox.style.display = 'block';
+        } else {
+            manualBox.style.display = 'none';
+            // Opcional: Limpa os campos quando esconde para não enviar lixo no request
+            document.getElementById('number').value = '';
+            document.getElementById('year').value = '{{ date('Y') }}';
+        }
+    }
+
+    // Garante que o estado correto seja carregado caso a página venha de um erro de validação
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleNumberField();
+    });
+</script>
 @endsection

@@ -36,7 +36,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['number', 'year', 'type'], 'unique_portaria_number');
+            $table->unique(['number', 'year'], 'unique_portaria_number');
         });
     }
 

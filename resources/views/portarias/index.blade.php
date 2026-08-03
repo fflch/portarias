@@ -60,8 +60,8 @@
                                                 </span>
                                                 
                                                 {{-- Exibe o número formatado ou 'Pendente' --}}
-                                                <span class="font-weight-bold text-dark small">
-                                                    Nº {{ $portaria->formatted_number ?? 'Pendente' }}
+                                                <span class="font-weight-bold text-dark medium">
+                                                    nº {{ $portaria->number . '/'. $portaria->year ?? 'Pendente' }}
                                                 </span>
 
                                                 {{-- Badge do Enum de Status --}}
