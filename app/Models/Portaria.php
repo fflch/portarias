@@ -17,7 +17,7 @@ class Portaria extends Model
         'number',
         'year',
         'published_at',
-        'pdf_path',
+        'file_path',
         'file_name',
         'file_hash',
         'status',

@@ -24,10 +24,10 @@ class PortariaFactory extends Factory
     public function definition(): array
     {
         Storage::disk('public')->makeDirectory('portarias/' . now()->year);
-        $fakePdfPath = 'portarias/' . now()->year . '/test_sample.pdf';
+        $fakeFilePath = 'portarias/' . now()->year . '/test_sample.docx';
 
-        if (!Storage::disk('public')->exists($fakePdfPath)) {
-            Storage::disk('public')->put($fakePdfPath, '%PDF-1.4 Fake PDF Content for Testing');
+        if (!Storage::disk('public')->exists($fakeFilePath)) {
+            Storage::disk('public')->put($fakeFilePath, '%File-1.4 Fake File Content for Testing');
         }
 
         $status = $this->faker->randomElement(PortariaStatus::cases());
@@ -38,11 +38,11 @@ class PortariaFactory extends Factory
             'title' => 'Dispõe sobre ' . $this->faker->sentence(6),
             'number' => $isPublished ? $this->faker->unique->numberBetween(1, 100) : null,
             'year' => now()->year,
-            'pdf_path' => $fakePdfPath,
-            'file_name' => 'Portaria_Teste_' . $this->faker->word() . '.pdf',
+            'file_path' => $fakeFilePath,
+            'file_name' => 'Portaria_Teste_' . $this->faker->word() . '.docx',
             'file_hash' => hash('sha256', 'fake-content'),
             'status' => $status,
-            'rejection_reason' => $status === PortariaStatus::REJECTED ? 'PDF ilegível ou sem assinatura.' : null,
+            'rejection_reason' => $status === PortariaStatus::REJECTED ? 'Arquivo ilegível ou sem assinatura.' : null,
             'created_by' => User::factory(),
             'approved_by' => $isPublished ? User::factory() : null,
             'approved_at' => $isPublished ? now() : null,

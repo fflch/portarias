@@ -37,7 +37,7 @@ class PortariaController extends Controller
         $filePath = $file->store('portarias/' . now()->year, 'public');
         $fileHash = hash_file('sha256', $file->getRealPath());
 
-        Portaria::create([
+        $portaria = Portaria::create([
             'type' => $validated['type'],
             'title' => $validated['title'],
             'number' => $request->number ?? null,
@@ -94,7 +94,7 @@ class PortariaController extends Controller
             $targetYear = $validated['year'] ?? $portaria->year ?? now()->year;
 
             $portaria->file_path = $file->store('portarias/' . $targetYear, 'public');
-            $portaria->file_name = $fule->getClientOriginalName();
+            $portaria->file_name = $file->getClientOriginalName();
             $portaria->file_hash = hash_file('sha256', $file->getRealPath());
         }
 

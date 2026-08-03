@@ -92,7 +92,6 @@
                         </div>
                         @error('file')
                             <div class="text-danger small mt-1">{{ $message }}</div>
-                        @errorElse
                             <small class="form-text text-muted">Apenas arquivos no formato <strong>Word (.docx)</strong> são permitidos. Tamanho máximo: 10MB.</small>
                         @enderror
                     </div>

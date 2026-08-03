@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->date('published_at')->nullable();
 
-            $table->string('pdf_path');
+            $table->string('file_path')->nullable();
             $table->string('file_name');
             $table->string('file_hash')->nullable();
 

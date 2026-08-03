@@ -88,7 +88,7 @@
                     </div>
 
                     {{-- Visualizador de DOCX no Navegador --}}
-                    @if($portaria->pdf_path)
+                    @if($portaria->file_path)
                         <div id="docx-container" class="border rounded p-3" style="min-height: 550px; max-height: 750px; overflow-y: auto; background-color: #f8f9fa;">
                             <div id="docx-loading" class="text-center py-5">
                                 <div class="spinner-border text-primary" role="status"></div>
@@ -182,13 +182,13 @@
 </div>
 
 {{-- Scripts para renderizar o .docx direto no navegador sem disparar download --}}
-@if($portaria->pdf_path)
+@if($portaria->file_path)
     <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.1.15/dist/docx-preview.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const fileUrl = "{{ asset('storage/' . $portaria->pdf_path) }}";
+            const fileUrl = "{{ asset('storage/' . $portaria->file_path) }}";
             const container = document.getElementById("docx-container");
             const loading = document.getElementById("docx-loading");
 
