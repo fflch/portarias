@@ -1,0 +1,30 @@
+:root {
+    --fflch-primary: #273e74;
+    --fflch-secondary: #003358;
+}
+
+.btn-primary-fflch {
+    background-color: var(--fflch-primary) !important;
+    border-color: var(--fflch-primary) !important;
+    color: #ffffff !important;
+}
+.btn-primary-fflch:hover, 
+.btn-primary-fflch:focus, 
+.btn-primary-fflch:active {
+    background-color: var(--fflch-secondary) !important;
+    border-color: var(--fflch-secondary) !important;
+}
+
+.btn-outline-primary-fflch {
+    background-color: #fff !important;
+    border-color: var(--fflch-primary) !important;
+    color: var(--fflch-primary) !important;
+}
+
+.btn-outline-primary-fflch:hover, 
+.btn-outline-primary-fflch:focus, 
+.btn-outline-primary-fflch:active {
+    background-color: var(--fflch-primary) !important;
+    border-color: var(--fflch-primary) !important;
+    color: #ffffff !important;
+}

@@ -1,147 +1,184 @@
-@extends('laravel-usp-theme::master')
+@extends('layouts.app') 
 
 @section('content')
-    <div class="container mt-4" style="min-height: 70vh;">
+<div class="container py-4" style="min-height: 70vh;">
 
-        <div class="card shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Nova Portaria</h5>
-                <a href="{{ route('portarias.index') }}" class="btn btn-secondary btn-sm">
-                    Voltar
-                </a>
+    {{-- Alerta geral de erros de validação --}}
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-lg mr-3 me-3"></i>
+                <div>
+                    <strong>Por favor, verifique o formulário!</strong>
+                    <span class="d-block text-sm small">Existem campos que precisam de correção antes de continuar.</span>
+                </div>
             </div>
+            <button type="button" class="close btn-close" data-dismiss="alert" aria-label="Fechar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
 
-            <div class="card-body">
-                <form action="{{ route('portarias.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+    <div class="card shadow-sm border-0">
+        {{-- Cabeçalho Institucional --}}
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0 text-dark font-weight-bold">Nova Portaria</h5>
+                <small class="text-muted">Preencha os dados e anexe a minuta para submeter à análise</small>
+            </div>
+            <a href="{{ route('portarias.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left mr-1 me-1"></i> Voltar
+            </a>
+        </div>
 
-                    {{-- Tipo --}}
-                    <div class="mb-3">
-                        <label class="form-label">Tipo de Portaria</label>
-                        <select name="tipo" id="tipo" class="form-select" required>
-                            <option value="">Selecione...</option>
-                            <option value="A">Tipo A — Eleição CCP</option>
-                            <option value="B">Tipo B — Comissões</option>
-                            <option value="C">Tipo C — Designação</option>
-                            <option value="D">Tipo D — Administrativa</option>
+        <div class="card-body p-4">
+            <form action="{{ route('portarias.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="row">
+                    {{-- Tipo de Portaria (Carregado dinamicamente do Enum) --}}
+                    <div class="col-md-12 mb-3">
+                        <label for="type" class="form-label font-weight-bold text-secondary">
+                            Tipo de Portaria <span class="text-danger">*</span>
+                        </label>
+                        <select name="type" id="type" class="form-control @error('type') is-invalid @enderror" required>
+                            <option value="" disabled {{ old('type') ? '' : 'selected' }}>Selecione o tipo de ato normativo...</option>
+                            @foreach(App\Enums\PortariaType::cases() as $type)
+                                <option value="{{ $type->value }}" {{ old('type') === $type->value ? 'selected' : '' }}>
+                                    {{ $type->label() }}
+                                </option>
+                            @endforeach
                         </select>
+                        @error('type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    {{-- Título --}}
-                    <div class="mb-3">
-                        <label class="form-label">Título</label>
-                        <input type="text" name="titulo" class="form-control" required>
-                    </div>
-
-                    {{-- Upload --}}
-                    <div class="mb-3">
-                        <label class="form-label">Documento (.docx)</label>
-                        <input type="file" name="arquivo" class="form-control" accept=".docx" required>
-                    </div>
-
-                    {{-- =========================
-                        CAMPOS DINÂMICOS
-                    ========================== --}}
-
-                    {{-- Tipo A --}}
-                    <div id="tipoA" class="tipo-group d-none">
-                        <hr>
-                        <h6>Dados da Eleição (CCP)</h6>
-
-                        <div class="mb-2">
-                            <input type="text" name="programa" class="form-control" placeholder="Nome do Programa">
+                    {{-- Origem da Numeração (Toggle) --}}
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label font-weight-bold text-secondary d-block">
+                            Origem da Numeração <span class="text-danger">*</span>
+                        </label>
+                        
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="num_auto" name="numbering_type" value="auto" class="form-check-input" 
+                                   {{ old('numbering_type', 'auto') === 'auto' ? 'checked' : '' }} onchange="toggleNumberField()">
+                            <label class="form-check-label" for="num_auto">Gerar Automaticamente (Nova Portaria)</label>
                         </div>
-
-                        <div class="mb-2">
-                            <input type="email" name="email_inscricao" class="form-control" placeholder="Email para inscrição">
-                        </div>
-
-                        <div class="mb-2">
-                            <input type="text" name="responsavel_votacao" class="form-control" placeholder="Responsável pelo envio do link">
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <input type="date" name="data_inicio" class="form-control">
-                            </div>
-                            <div class="col">
-                                <input type="date" name="data_fim" class="form-control">
-                            </div>
+                        
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="num_manual" name="numbering_type" value="manual" class="form-check-input" 
+                                   {{ old('numbering_type') === 'manual' ? 'checked' : '' }} onchange="toggleNumberField()">
+                            <label class="form-check-label" for="num_manual">Inserir Manualmente (Retroativa / Física)</label>
                         </div>
                     </div>
 
-                    {{-- Tipo B --}}
-                    <div id="tipoB" class="tipo-group d-none">
-                        <hr>
-                        <h6>Eleição de Comissão</h6>
+                    {{-- Campos de Número e Ano (Escondidos por padrão) --}}
+                    <div class="col-md-12" id="box-numeracao-manual" style="display: {{ old('numbering_type') === 'manual' ? 'block' : 'none' }};">
+                        <div class="p-3 mb-3 bg-light border rounded">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="number" class="form-label font-weight-bold text-secondary">
+                                        Número da Portaria <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" name="number" id="number" class="form-control @error('number') is-invalid @enderror" 
+                                           value="{{ old('number') }}" placeholder="Ex: 12">
+                                    @error('number')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                        <div class="mb-2">
-                            <input type="text" name="comissao" class="form-control" placeholder="Nome da Comissão">
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <input type="date" name="inscricao_inicio" class="form-control">
-                            </div>
-                            <div class="col">
-                                <input type="date" name="inscricao_fim" class="form-control">
+                                <div class="col-md-6">
+                                    <label for="year" class="form-label font-weight-bold text-secondary">
+                                        Ano <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" name="year" id="year" class="form-control @error('year') is-invalid @enderror" 
+                                           value="{{ old('year', date('Y')) }}" placeholder="Ex: {{ date('Y') }}">
+                                    @error('year')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-
-                        <div class="mt-2">
-                            <input type="text" name="colegio_eleitoral" class="form-control" placeholder="Colégio eleitoral">
-                        </div>
                     </div>
 
-                    {{-- Tipo C --}}
-                    <div id="tipoC" class="tipo-group d-none">
-                        <hr>
-                        <h6>Designação de Membros</h6>
-
-                        <div class="mb-2">
-                            <textarea name="membros" class="form-control" rows="3" placeholder="Lista de membros titulares"></textarea>
-                        </div>
-
-                        <div class="mb-2">
-                            <textarea name="suplentes" class="form-control" rows="3" placeholder="Lista de suplentes"></textarea>
-                        </div>
+                    {{-- Título / Ementa --}}
+                    <div class="col-md-12 mb-3">
+                        <label for="title" class="form-label font-weight-bold text-secondary">
+                            Título / Ementa da Portaria <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               name="title" 
+                               id="title" 
+                               class="form-control @error('title') is-invalid @enderror" 
+                               placeholder="Ex: Dispõe sobre a constituição da comissão eleitoral..." 
+                               value="{{ old('title') }}" 
+                               required>
+                        <small class="form-text text-muted">Forneça uma síntese clara do assunto tratado nesta portaria.</small>
+                        @error('title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    {{-- Tipo D --}}
-                    <div id="tipoD" class="tipo-group d-none">
-                        <hr>
-                        <h6>Portaria Administrativa</h6>
-
-                        <div class="mb-2">
-                            <textarea name="descricao" class="form-control" rows="3" placeholder="Descrição ou conteúdo"></textarea>
+                    {{-- Anexo do Documento (.docx) --}}
+                    <div class="col-md-12 mb-4">
+                        <label for="file" class="form-label font-weight-bold text-secondary">
+                            Minuta em Documento (.docx) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light text-primary">
+                                    <i class="fas fa-file-word"></i>
+                                </span>
+                            </div>
+                            <input type="file" 
+                                   name="file" 
+                                   id="file" 
+                                   class="form-control @error('file') is-invalid @enderror" 
+                                   accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                                   required>
                         </div>
+                        @error('file')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <small class="form-text text-muted">Apenas arquivos no formato <strong>Word (.docx)</strong> são permitidos. Tamanho máximo: 10MB.</small>
+                        @enderror
                     </div>
+                </div>
 
-                    {{-- Submit --}}
-                    <div class="mt-4 text-end">
-                        <button type="submit" class="btn btn-primary">
-                            Salvar Portaria
-                        </button>
-                    </div>
+                <hr class="my-4">
 
-                </form>
-            </div>
+                {{-- Rodapé com Ações --}}
+                <div class="d-flex justify-content-end align-items-center">
+                    <a href="{{ route('portarias.index') }}" class="btn btn-light border mr-2 me-2">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary-fflch px-4 font-weight-bold shadow-sm">
+                        <i class="fas fa-paper-plane mr-1 me-1"></i> Enviar para Análise
+                    </button>
+                </div>
+
+            </form>
         </div>
     </div>
+</div>
+<script>
+    function toggleNumberField() {
+        const manualBox = document.getElementById('box-numeracao-manual');
+        const isManual = document.getElementById('num_manual').checked;
+        
+        if (isManual) {
+            manualBox.style.display = 'block';
+        } else {
+            manualBox.style.display = 'none';
+            // Opcional: Limpa os campos quando esconde para não enviar lixo no request
+            document.getElementById('number').value = '';
+            document.getElementById('year').value = '{{ date('Y') }}';
+        }
+    }
 
-    {{-- Script simples --}}
-    <script>
-        const tipoSelect = document.getElementById('tipo');
-        const grupos = document.querySelectorAll('.tipo-group');
-
-        tipoSelect.addEventListener('change', function () {
-            grupos.forEach(g => g.classList.add('d-none'));
-
-            if (this.value) {
-                document.getElementById('tipo' + this.value).classList.remove('d-none');
-            }
-        });
-    </script>
-
+    // Garante que o estado correto seja carregado caso a página venha de um erro de validação
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleNumberField();
+    });
+</script>
 @endsection
-
