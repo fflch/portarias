@@ -1,14 +1,14 @@
 services:
-  cursolaravel:
+  portarias:
     build: .
-    image: cursolaravel:latest
-    container_name: cursolaravel
+    image: portarias:latest
+    container_name: portarias
     ports:
       - "8000:80"
     depends_on:
       - mariadb
     networks:
-      - cursolaravel-network
+      - portarias-network
     volumes:
       - ./:/var/www/html
     environment:
@@ -17,21 +17,21 @@ services:
 
   mariadb:
     image: mariadb:11
-    container_name: cursolaravel_mariadb
+    container_name: portarias_mariadb
     restart: always
     environment:
-      MYSQL_DATABASE: cursolaravel
-      MYSQL_USER: cursolaravel
-      MYSQL_PASSWORD: cursolaravel
-      MYSQL_ROOT_PASSWORD: cursolaravel
+      MYSQL_DATABASE: portarias
+      MYSQL_USER: portarias
+      MYSQL_PASSWORD: portarias
+      MYSQL_ROOT_PASSWORD: portarias
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
-      - cursolaravel-network
+      - portarias-network
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: cursolaravel_phpmyadmin
+    container_name: portarias_phpmyadmin
     restart: always
     depends_on:
       - mariadb
@@ -41,44 +41,44 @@ services:
       PMA_HOST: mariadb
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: cursolaravel
+      PMA_PASSWORD: portarias
     networks:
-      - cursolaravel-network
+      - portarias-network
       
   selenium:
     image: selenium/standalone-chrome
-    container_name: cursolaravel_selenium
+    container_name: portarias_selenium
     ports:
       - "7900:7900"
     networks:
-      - cursolaravel-network
+      - portarias-network
     shm_size: 2gb
 
   # No /etc/hosts do seu computador colocar a linha `127.0.0.1 auth.local` 
   # particularidades do protocolo oAuth1 usado na USP
   senhaunica-faker:
     image: uspdev/senhaunica-faker
-    container_name: cursolaravel_senhaunica-faker
+    container_name: portarias_senhaunica-faker
     ports:
       - "3141:3141"
     environment:
           - APP_URL=http://auth.local:3141
     networks:
-      cursolaravel-network:
+      portarias-network:
         aliases:
           - auth.local
 
   mailpit:
     image: axllent/mailpit:latest
-    container_name: cursolaravel_mailpit
+    container_name: portarias_mailpit
     ports:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Interface Web
     networks:
-      - cursolaravel-network
+      - portarias-network
 
 networks:
-  cursolaravel-network:
+  portarias-network:
 
 volumes:
   mariadb_data:
