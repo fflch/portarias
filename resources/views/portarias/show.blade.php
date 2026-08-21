@@ -40,8 +40,8 @@
 
         <div class="d-flex align-items-center" style="gap: 10px;">
             {{-- Botão de Download do Documento Word --}}
-            @if($portaria->pdf_path)
-                <a href="{{ asset('storage/' . $portaria->pdf_path) }}" download class="btn btn-outline-primary-fflch btn-sm font-weight-bold">
+            @if($portaria->file_path)
+                <a href="{{ asset('storage/' . $portaria->file_path) }}" download class="btn btn-outline-primary-fflch btn-sm font-weight-bold">
                     <i class="fas fa-file-word mr-1 me-1"></i> Baixar Minuta (.docx)
                 </a>
             @endif
